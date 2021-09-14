@@ -12,7 +12,7 @@ Example:
     import (
         "fmt"
 
-        "github.com/tebeka/atexit"
+        "github.com/patarapolw/atexit"
     )
 
     func handler() {

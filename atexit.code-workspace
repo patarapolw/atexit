@@ -1,0 +1,10 @@
+{
+    "folders": [
+        {
+            "path": "examples/graceful-exit"
+        },
+        {
+            "path": "examples/ungraceful-exit"
+        },
+    ]
+}
