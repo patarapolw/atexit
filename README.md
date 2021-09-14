@@ -1,7 +1,5 @@
 # About
 
-[![Build Status](https://travis-ci.org/tebeka/atexit.svg?branch=master)](https://travis-ci.org/tebeka/atexit)
-
 Simple `atexit` implementation for [Go](https://golang.org).
 
 Note that you *have* to call `atexit.Exit` and not `os.Exit` to terminate your
@@ -15,7 +13,7 @@ package main
 import (
     "fmt"
 
-    "github.com/tebeka/atexit"
+    "github.com/patarapolw/atexit"
 )
 
 func handler() {
@@ -30,10 +28,4 @@ func main() {
 
 # Install
 
-    go get github.com/tebeka/atexit
-
-Contact
-=======
-
-* [Home](https://github.com/tebeka/atexit)
-* [Author](mailto:miki.tebeka@gmail.com)
+    go get github.com/patarapolw/atexit

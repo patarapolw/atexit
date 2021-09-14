@@ -30,12 +30,14 @@ import (
 	"fmt"
 	"log"
 	"os"
+	"os/signal"
 	"sync"
+	"syscall"
 )
 
 const (
 	// Version is package version
-	Version = "0.3.0"
+	Version = "0.4.0"
 )
 
 var (
@@ -121,4 +123,30 @@ func executeHandlers() {
 
 func runHandlers() {
 	once.Do(executeHandlers)
+}
+
+func AwaitExit(signals ...os.Signal) chan os.Signal {
+	c := make(chan os.Signal, 1)
+
+	if len(signals) == 0 {
+		signal.Notify(c, // https://www.gnu.org/software/libc/manual/html_node/Termination-Signals.html
+			syscall.SIGTERM, // "the normal way to politely ask a program to terminate"
+			syscall.SIGINT,  // Ctrl+C
+			syscall.SIGQUIT, // Ctrl-\
+			syscall.SIGHUP,  // "terminal is disconnected"
+			// syscall.SIGKILL, // "always fatal", "SIGKILL and SIGSTOP may not be caught by a program"
+		)
+	} else {
+		signal.Notify(c, signals...)
+	}
+
+	go func() {
+		s := <-c
+		if s.String() == "SIGTERM" {
+			Exit(0)
+		}
+		Exit(1)
+	}()
+
+	return c
 }

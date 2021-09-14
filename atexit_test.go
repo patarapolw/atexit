@@ -66,7 +66,7 @@ import (
 	"fmt"
 	"io/ioutil"
 
-	"github.com/tebeka/atexit"
+	"github.com/patarapolw/atexit"
 )
 
 var outfile = ""
@@ -100,8 +100,8 @@ func main() {
 	modTmpl = `
 module testexit
 
-go 1.13
+go 1.17
 
-replace github.com/tebeka/atexit => %s
+replace github.com/patarapolw/atexit => %s
 `
 )
