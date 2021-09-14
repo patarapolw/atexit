@@ -125,7 +125,7 @@ func runHandlers() {
 	once.Do(executeHandlers)
 }
 
-func AwaitExit(signals ...os.Signal) chan os.Signal {
+func Listen(signals ...os.Signal) chan os.Signal {
 	c := make(chan os.Signal, 1)
 
 	if len(signals) == 0 {
@@ -134,7 +134,7 @@ func AwaitExit(signals ...os.Signal) chan os.Signal {
 			syscall.SIGINT,  // Ctrl+C
 			syscall.SIGQUIT, // Ctrl-\
 			syscall.SIGHUP,  // "terminal is disconnected"
-			// syscall.SIGKILL, // "always fatal", "SIGKILL and SIGSTOP may not be caught by a program"
+			syscall.SIGKILL, // "always fatal", "SIGKILL and SIGSTOP may not be caught by a program"
 		)
 	} else {
 		signal.Notify(c, signals...)
@@ -149,4 +149,10 @@ func AwaitExit(signals ...os.Signal) chan os.Signal {
 	}()
 
 	return c
+}
+
+func ListenPanic() {
+	if err := recover(); err != nil {
+		Fatal(err)
+	}
 }
