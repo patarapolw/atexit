@@ -7,22 +7,28 @@ This package also provides replacements to log.Fatal, log.Fatalf and log.Fatalln
 
 Example:
 
-    package main
+	package main
 
-    import (
-        "fmt"
+	import (
+		"fmt"
+		"time"
 
-        "github.com/patarapolw/atexit"
-    )
+		"github.com/patarapolw/atexit"
+	)
 
-    func handler() {
-        fmt.Println("Exiting")
-    }
+	func handler() {
+		fmt.Println("atexit triggered")
+	}
 
-    func main() {
-            atexit.Register(handler)
-            atexit.Exit(0)
-    }
+	func main() {
+		atexit.Listen() // Await for SIGINT, SIGTERM, whatever. Also works in Windows
+		defer atexit.ListenPanic() // Listen for panic and crashes
+
+		atexit.Register(handler)
+		time.Sleep(1 * time.Minute)
+
+		atexit.Exit(0) // This also needs to be called at the end of main function, if you want atexit to be executed on normal exit.
+	}
 */
 package atexit
 
@@ -31,6 +37,7 @@ import (
 	"log"
 	"os"
 	"os/signal"
+	"runtime/debug"
 	"sync"
 	"syscall"
 )
@@ -67,28 +74,28 @@ func (id HandlerID) Cancel() error {
 // Exit runs all the atexit handlers and then terminates the program using
 // os.Exit(code)
 func Exit(code int) {
-	runHandlers()
+	RunHandlers()
 	os.Exit(code)
 }
 
 // Fatal runs all the atexit handler then calls log.Fatal (which will terminate
 // the program)
 func Fatal(v ...interface{}) {
-	runHandlers()
+	RunHandlers()
 	log.Fatal(v...)
 }
 
 // Fatalf runs all the atexit handler then calls log.Fatalf (which will
 // terminate the program)
 func Fatalf(format string, v ...interface{}) {
-	runHandlers()
+	RunHandlers()
 	log.Fatalf(format, v...)
 }
 
 // Fatalln runs all the atexit handler then calls log.Fatalln (which will
 // terminate the program)
 func Fatalln(v ...interface{}) {
-	runHandlers()
+	RunHandlers()
 	log.Fatalln(v...)
 }
 
@@ -121,7 +128,7 @@ func executeHandlers() {
 	}
 }
 
-func runHandlers() {
+func RunHandlers() {
 	once.Do(executeHandlers)
 }
 
@@ -153,6 +160,6 @@ func Listen(signals ...os.Signal) chan os.Signal {
 
 func ListenPanic() {
 	if err := recover(); err != nil {
-		Fatal(err)
+		Fatal(err, "\n", string(debug.Stack()))
 	}
 }

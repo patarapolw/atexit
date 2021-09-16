@@ -12,9 +12,11 @@ func handler() {
 }
 
 func main() {
-	atexit.Register(handler)
-	atexit.Listen() // Await for SIGINT, SIGTERM, whatever. Also works in Windows
+	atexit.Listen()            // Await for SIGINT, SIGTERM, whatever. Also works in Windows
+	defer atexit.ListenPanic() // Listen for panic and crashes
 
+	atexit.Register(handler)
 	time.Sleep(1 * time.Minute)
-	atexit.Exit(0)
+
+	atexit.Exit(0) // This also needs to be called at the end of main function, if you want atexit to be executed on normal exit.
 }

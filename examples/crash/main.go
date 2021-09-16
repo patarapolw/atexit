@@ -12,8 +12,10 @@ func handler() {
 }
 
 func main() {
-	atexit.Register(handler)
 	atexit.Listen()
+	defer atexit.ListenPanic()
+
+	atexit.Register(handler)
 
 	go func() {
 		defer atexit.ListenPanic()

@@ -22,20 +22,30 @@ func handler() {
 }
 
 func main() {
-	atexit.Register(handler)
 	atexit.Listen() // Await for SIGINT, SIGTERM, whatever. Also works in Windows
+	defer atexit.ListenPanic() // Listen for panic and crashes
 
+	atexit.Register(handler)
+
+	go func() {
+		defer atexit.ListenPanic()
+
+		time.Sleep(1 * time.Second)
+		panic("panic")
+	}()
 	time.Sleep(1 * time.Minute)
-	atexit.Exit(0) // This also needs to be called at the end of main function.
+
+	atexit.Exit(0) // This also needs to be called at the end of main function, if you want atexit to be executed on normal exit.
 }
 ```
 
 ## Caveats
 
-- `os.Exit` won't work. Use `atexit.Exit` instead.
-- `atexit.Exit(0)` needs to be called at the end of main function.
-- `log.Fatal*` also don't work. Use `atexit.Fatal*` instead.
-- `panic` without `recover` won't be listened. See [/examples/panic/main.go](/examples/panic/main.go)
+- `os.Exit` doesn't call atexit. Use `atexit.Exit` instead.
+- `atexit.Exit(0)` needs to be called at the end of main function, if you want atexit to be executed on normal exit.
+- `log.Fatal*` also don't call atexit. Use `atexit.Fatal*` instead.
+- `panic` can be listened, but do call `defer atexit.ListenPanic()` at the beginning of main function.
+- If `panic` is inside Goroutine, call `defer atexit.ListenPanic()` at the beginning of main function, too.
 
 ## Install
 
